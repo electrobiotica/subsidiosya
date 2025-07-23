@@ -101,6 +101,16 @@ Para cada programa incluí:
 
     loading.classList.add('hidden');
   }
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    await new Promise(r => { const w = () => window.puter?.auth?.signIn ? r() : setTimeout(w, 100); w(); });
+    try {
+      await puter.auth.signIn(); // 🔐 Login automático al cargar
+      console.log("✅ Autenticado con Puter");
+    } catch (e) {
+      console.error("❌ No se pudo autenticar con Puter:", e);
+    }
+  });
 </script>
 
 </body>

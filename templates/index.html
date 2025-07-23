@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>SubsidiosYA – Web + GPT</title>
+  <script src="https://js.puter.com/v2/" defer></script>
+</head>
+<body style="font-family:sans-serif;padding:2rem">
+  <h2>🧠 SubsidiosYA – Consulta Actualizada</h2>
+  <button onclick="buscarYAnalizar()">🔍 Buscar subsidios vigentes</button>
+  <p id="status">Estado: esperando</p>
+  <div id="respuesta" style="white-space:pre-wrap; margin-top:1rem;"></div>
+
+  <script>
+    async function buscarYAnalizar() {
+      const status = document.getElementById('status');
+      const out = document.getElementById('respuesta');
+      status.innerText = "⏳ Buscando páginas oficiales...";
+      out.innerText = "";
+
+      await new Promise(r => {
+        const check = () => window.puter?.ai?.web?.search && window.puter?.ai?.chat ? r() : setTimeout(check, 100);
+        check();
+      });
+
+      try {
+        const resultados = await puter.ai.web.search("subsidios vigentes julio 2025 site:argentina.gob.ar");
+        const links = resultados.results.map(r => r.url).slice(0, 5).join("\n");
+
+        const prompt = `
+Con base en los siguientes links oficiales, listá los programas sociales activos en julio 2025 en Argentina. Mostrá solo los vigentes, sin inventar.
+
+Para cada uno indicá:
+🧾 Nombre  
+🏛 Organismo  
+📅 Vigencia  
+📝 Requisitos  
+🔗 Link directo
+
+Links:
+${links}
+`;
+
+        status.innerText = "🤖 Consultando GPT-4o...";
+        const respuesta = await puter.ai.chat([{ role: 'user', content: prompt }], { model: 'gpt-4o' });
+
+        out.innerHTML = respuesta?.message?.content?.replace(/\n/g, "<br>") || "⚠️ No se obtuvo respuesta.";
+        status.innerText = "✅ Listo.";
+      } catch (e) {
+        console.error(e);
+        status.innerText = "❌ Error";
+        out.innerText = e.toString();
+      }
+    }
+  </script>
+</body>
+</html>

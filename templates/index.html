@@ -3,159 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tu Terapia AI – Chat</title>
-  <script src="https://js.puter.com/v2/" defer></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <title>🧠 SubsidiosYA</title>
   <style>
-    body { background: linear-gradient(to bottom, #c7d2fe 0%, #fff 60%); }
-    .dark-mode { background: #1a202c; color:#f7fafc; }
-    .glass {background:rgba(255,255,255,.8);backdrop-filter:blur(12px);border-radius:1rem;box-shadow:0 2px 10px rgba(0,0,0,.05);}
-    .bubble-me   { @apply bg-indigo-500 text-white inline-block px-4 py-2 rounded-2xl text-sm; }
-    .bubble-bot  { @apply glass p-4 text-sm text-gray-700; }
-    .hidden{display:none}
-    .section{display:none}.section.active{display:block}
+    body { font-family: Arial, sans-serif; background:#f4f4f4; padding:20px; max-width:700px; margin:auto;}
+    input, select { width:100%; padding:8px; margin:6px 0;}
+    button { background:#007BFF; color:white; padding:10px 15px; border:none; cursor:pointer; font-size:16px;}
+    .bubble-me { background:#dcf8c6; padding:10px; border-radius:10px; margin:10px 0;}
+    .bubble-bot { background:#f1f0f0; padding:10px; border-radius:10px; margin:10px 0;}
+    .hidden { display:none;}
   </style>
 </head>
-<body id="page" class="min-h-screen flex flex-col">
-
-  <!-- Encabezado -->
-  <header class="flex justify-between items-center p-4">
-    <div id="tituloTerapia" class="text-sm text-gray-600">🧠 Psicoterapia Gestalt</div>
-    
-<button id="btnLogin" class="text-sm underline text-blue-600 hover:text-blue-800">🔐 Iniciar sesión</button>
-
-<button onclick="toggleModo()" class="text-2xl">🌗</button>
-  </header>
-
-  <!-- Contenido principal -->
-  <main class="flex-1 px-4 flex flex-col justify-between max-w-xl mx-auto w-full">
-
-    <!-- Chat (sección por defecto) -->
-    <section id="chatSection" class="section active flex flex-col gap-4 flex-1">
-      <div id="chat" class="flex flex-col gap-6 py-4 overflow-y-auto flex-1"></div>
-
-      <!-- Indicador typing -->
-      <div id="typing" class="text-sm italic text-gray-500 hidden">✍️ El terapeuta está escribiendo…</div>
-
-      <!-- Controles -->
-      <div class="pt-4 pb-6">
-        <div class="flex justify-center gap-6 text-xl text-gray-700 mb-3">
-          <button title="Modo texto"   onclick="setModo('texto')" id="modoTxt">⌨️</button>
-          <button title="Modo voz"     onclick="setModo('voz')"   id="modoVoz">🎤</button>
-          <button title="Escuchar"     onclick="reproducirUltima()" id="btnLeer" class="hidden">🔊</button>
-        </div>
-        <div class="flex gap-2">
-          <input id="mensaje" type="text" placeholder="Escribí algo..." class="flex-1 p-3 rounded-lg border text-sm"/>
-          <button onclick="enviarMensaje()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm">Enviar</button>
-        </div>
-        <button onclick="escucharMicrofono()" class="mt-3 w-full bg-yellow-400 hover:bg-yellow-500 text-black py-2 rounded-lg text-sm">🎙️ Hablar</button>
-      </div>
-    </section>
-
-    <!-- Bitácora -->
-    <section id="bitacoraSection" class="section">
-      <h2 class="text-lg font-semibold mb-2">📝 Bitácora emocional</h2>
-      <textarea id="logInput" rows="3" class="w-full border rounded p-2 mb-2" placeholder="Escribí tu reflexión..."></textarea>
-      <button onclick="guardarEntrada()" class="w-full bg-indigo-500 text-white py-2 rounded mb-4">Guardar</button>
-      <div id="logList" class="flex flex-col gap-2"></div>
-    </section>
-
-    <!-- Estado -->
-    <section id="estadoSection" class="section"><p class="text-sm text-gray-500">📊 Estado emocional (próximamente).</p></section>
-
-    <!-- Ajustes -->
-    <section id="ajustesSection" class="section"><p class="text-sm text-gray-500">⚙️ Ajustes (próximamente).</p></section>
-
-  </main>
-
- <!-- Navegación inferior fija -->
-<nav class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur border-t
-            flex justify-around text-sm text-gray-700 py-2 shadow-[0_-1px_4px_rgba(0,0,0,0.05)]">
-  <button onclick="mostrar('chatSection')">🗨</button>
-  <button onclick="mostrar('bitacoraSection');cargarBitacora();">📝</button>
-  <button onclick="mostrar('estadoSection')">📊</button>
-  <button onclick="mostrar('ajustesSection')">⚙️</button>
-  <a href="/" title="Inicio">🏠</a>
-</nav>
-
-
-
+<body>
+  <h1>🧠 SubsidiosYA (beta datos.gob.ar)</h1>
+  <p>Completá este formulario para descubrir posibles programas sociales.</p>
+  <input type="number" id="edad" placeholder="Edad" />
+  <input type="number" id="ingresos" placeholder="Ingresos mensuales en pesos" />
+  <input type="number" id="hijos" placeholder="Cantidad de hijos" />
+  <select id="discapacidad">
+    <option value="">¿Tenés alguna discapacidad?</option>
+    <option value="Sí">Sí</option>
+    <option value="No">No</option>
+  </select>
+  <input type="text" id="educacion" placeholder="Nivel educativo alcanzado" />
+  <button onclick="consultarSubsidios()">🔍 Consultar subsidios posibles</button>
+  <p id="loading" class="hidden">⏳ Buscando información...</p>
+  <div id="chat"></div>
 <script>
-  // ---------- Estado UI ----------
-  let modo = 'texto', ultimaRespuesta = '';
+async function consultarSubsidios(){
+  const edad = document.getElementById('edad').value.trim();
+  const ingresos = document.getElementById('ingresos').value.trim();
+  const hijos = document.getElementById('hijos').value.trim();
+  const discapacidad = document.getElementById('discapacidad').value;
+  const educacion = document.getElementById('educacion').value.trim();
+  const loading = document.getElementById('loading');
+  const chat = document.getElementById('chat');
 
-  // ---------- Navegación ----------
-  function mostrar(id){
-    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+  if (!edad || !ingresos || !hijos || !discapacidad || !educacion) {
+    return alert("Completá todos los campos.");
   }
 
-  // ---------- Dark mode ----------
-  function toggleModo(){ document.body.classList.toggle('dark-mode'); }
+  chat.innerHTML = '';
+  loading.classList.remove('hidden');
+  chat.appendChild(Object.assign(document.createElement('div'), {
+    className: 'bubble-me',
+    innerText: 'Consulta enviada...'
+  }));
 
-  // ---------- Modo texto / voz ----------
-  function setModo(m){ modo=m; document.getElementById('modoTxt').classList.toggle('opacity-50',m!=='texto'); document.getElementById('modoVoz').classList.toggle('opacity-50',m!=='voz'); }
-
-  // ---------- TTS ----------
-  function reproducirUltima(){ if(!ultimaRespuesta)return; new SpeechSynthesisUtterance(ultimaRespuesta).lang='es-AR'; speechSynthesis.speak(new SpeechSynthesisUtterance(ultimaRespuesta)); }
-
-  // ---------- Typing ----------
-  function typing(show){ document.getElementById('typing').classList.toggle('hidden',!show); }
-
-  // ---------- Render mensaje ----------
-  function render(remitente,txt){
-    const cont=document.createElement('div');
-    cont.innerHTML= remitente==='Yo'
-      ? `<div class="bubble-me">${txt}</div>`
-      : `<div class="bubble-bot">${txt}</div>`;
-    document.getElementById('chat').appendChild(cont);
-    document.getElementById('chat').scrollTop=chat.scrollHeight;
-  }
-
-  // ---------- Enviar mensaje ----------
-  async function enviarMensaje(){
-    const inp=document.getElementById('mensaje'), txt=inp.value.trim(); if(!txt)return;
-    render('Yo',txt); inp.value=''; typing(true);
-
-    await new Promise(r=>{const w=()=>window.puter?.ai?.chat?r():setTimeout(w,50);w();});
-    const raw=await puter.ai.chat([{role:'system',content:'Actuá como un terapeuta humanista.'},{role:'user',content:txt}],{model:'gpt-4o'});
-    const rsp=raw?.message?.content||'Sin respuesta.'; ultimaRespuesta=rsp; document.getElementById('btnLeer').classList.remove('hidden');
-    typing(false); render('Bot',rsp); guardarConversacion(txt,rsp); if(modo==='voz')reproducirUltima();
-  }
-
-  // ---------- STT ----------
-  function escucharMicrofono(){
-    if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('🎤 No soportado');return;}
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition, r=new SR(); r.lang='es-AR';
-    r.onresult=e=>{document.getElementById('mensaje').value=e.results[0][0].transcript; if(modo==='voz')enviarMensaje();}
-    r.start();
-  }
-
-  // ---------- LocalStorage: chat ----------
-  function guardarConversacion(q,r){
-    const log=JSON.parse(localStorage.getItem('chatAI')||'[]'); log.push({q,r,t:Date.now()}); localStorage.setItem('chatAI',JSON.stringify(log));
-  }
-
-  // ---------- Bitácora ----------
-  function guardarEntrada(){
-    const txt=document.getElementById('logInput').value.trim(); if(!txt)return;
-    const b=JSON.parse(localStorage.getItem('bitacoraAI')||'[]'); b.unshift({d:new Date().toLocaleString(),t:txt}); localStorage.setItem('bitacoraAI',JSON.stringify(b));
-    document.getElementById('logInput').value=''; cargarBitacora();
-  }
-  function cargarBitacora(){
-    const d=JSON.parse(localStorage.getItem('bitacoraAI')||'[]'), l=document.getElementById('logList'); l.innerHTML=d.length?'':'<p class="text-gray-500 text-sm">No hay entradas.</p>';
-    d.forEach(e=>{l.innerHTML+=`<details class="border rounded p-2 text-sm"><summary>${e.d}</summary><p class="mt-1 whitespace-pre-wrap">${e.t}</p></details>`})
-  }
-</script>
-<script>
-document.getElementById("btnLogin").addEventListener("click", async () => {
   try {
-    await puter.auth.signIn();
-    alert("✅ Autenticado con Puter");
+    const res = await fetch('/subsidios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ edad, ingresos, hijos, discapacidad, educacion })
+    });
+
+    let data = null;
+    let respuestaTexto = '';
+
+    try {
+      // Intentamos parsear JSON
+      data = await res.clone().json();
+    } catch (err) {
+      // Si no es JSON válido, usamos .text()
+      respuestaTexto = await res.text();
+    }
+
+    const bot = document.createElement('div');
+    bot.className = 'bubble-bot';
+
+    if (data && data.success !== undefined) {
+      bot.innerHTML = (data.success ? data.respuesta : "❌ " + data.error).replace(/\n/g, '<br>');
+    } else {
+      bot.innerText = "❌ Error inesperado: " + respuestaTexto;
+    }
+
+    chat.appendChild(bot);
+
   } catch (e) {
-    alert("❌ Error al autenticar: " + e.message);
+    chat.appendChild(Object.assign(document.createElement('div'), {
+      className: 'bubble-bot',
+      innerText: '❌ Error grave: ' + e.message
+    }));
   }
-});
+
+  loading.classList.add('hidden');
+}
 </script>
+
+
 </body>
 </html>
